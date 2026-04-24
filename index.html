@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Marathon Plan">
+<meta name="theme-color" content="#0e0f11">
+<title>Half Marathon Training Plan</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E🏃%3C/text%3E%3C/svg%3E">
+<link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' fill='%230e0f11'/%3E%3Ctext x='50%25' y='50%25' text-anchor='middle' dominant-baseline='central' font-size='60'%3E🏃%3C/text%3E%3C/svg%3E">
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700;900&family=Barlow:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg:#0e0f11;--surface:#16181c;--border:#2a2d35;--accent:#f97316;
+    --accent2:#3b82f6;--green:#22c55e;--text:#e8eaf0;--muted:#6b7280;--card:#1c1f26;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
+  html,body{background:var(--bg);}
+  body{color:var(--text);font-family:'Barlow',sans-serif;font-weight:300;min-height:100vh;padding:0 0 100px;padding-top:env(safe-area-inset-top);}
+  header{background:var(--surface);border-bottom:1px solid var(--border);padding:18px 14px 14px;position:sticky;top:0;z-index:100;}
+  .header-inner{max-width:860px;margin:0 auto;}
+  .header-top{display:flex;justify-content:space-between;align-items:flex-start;gap:10px;flex-wrap:wrap;}
+  .plan-title{font-family:'Barlow Condensed',sans-serif;font-weight:900;font-size:clamp(22px,6vw,40px);text-transform:uppercase;letter-spacing:-1px;line-height:1;}
+  .plan-title span{color:var(--accent);}
+  .subtitle{color:var(--muted);font-size:10px;letter-spacing:.05em;text-transform:uppercase;margin-top:3px;}
+  .progress-block{text-align:right;flex-shrink:0;}
+  .progress-label{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.1em;margin-bottom:4px;}
+  .progress-bar-wrap{width:120px;height:5px;background:var(--border);border-radius:999px;overflow:hidden;}
+  .progress-bar-fill{height:100%;background:linear-gradient(90deg,var(--accent),var(--accent2));border-radius:999px;transition:width .4s;width:0%;}
+  .progress-pct{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:20px;color:var(--accent);margin-top:3px;line-height:1;}
+  .progress-sub{font-size:9px;color:var(--muted);margin-top:2px;}
+  .save-indicator{display:inline-flex;align-items:center;gap:5px;font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--green);margin-top:10px;}
+  .save-dot{width:6px;height:6px;border-radius:50%;background:var(--green);}
+  .reset-btn{margin-left:auto;font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);background:transparent;border:1px solid var(--border);padding:4px 10px;border-radius:4px;cursor:pointer;}
+  .save-row{display:flex;align-items:center;margin-top:10px;}
+  main{max-width:860px;margin:0 auto;padding:18px 10px 0;}
+  .legend{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:18px;padding:10px 12px;background:var(--card);border:1px solid var(--border);border-radius:10px;}
+  .legend-item{display:flex;align-items:center;gap:5px;font-size:10px;color:var(--muted);}
+  .legend-dot{width:7px;height:7px;border-radius:50%;}
+  .phase-header{display:flex;align-items:center;gap:10px;margin:26px 0 10px;}
+  .phase-label{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:10px;letter-spacing:.15em;text-transform:uppercase;color:var(--muted);border:1px solid var(--border);padding:2px 8px;border-radius:999px;white-space:nowrap;}
+  .phase-title{font-family:'Barlow Condensed',sans-serif;font-weight:900;font-size:15px;text-transform:uppercase;letter-spacing:.03em;}
+  .phase-line{flex:1;height:1px;background:var(--border);}
+  .week-card{background:var(--card);border:1px solid var(--border);border-radius:10px;margin-bottom:8px;overflow:hidden;transition:border-color .2s;}
+  .week-card.completed{border-color:var(--green);}
+  .week-header{display:flex;align-items:center;gap:10px;padding:12px 14px;cursor:pointer;user-select:none;}
+  .week-num{font-family:'Barlow Condensed',sans-serif;font-weight:900;font-size:24px;color:var(--accent);line-height:1;min-width:36px;}
+  .week-card.completed .week-num{color:var(--green);}
+  .week-info{flex:1;min-width:0;}
+  .week-name{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:14px;letter-spacing:.03em;text-transform:uppercase;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  .week-meta{font-size:10px;color:var(--muted);margin-top:1px;}
+  .week-right{display:flex;align-items:center;gap:5px;flex-shrink:0;}
+  .week-dots{display:flex;gap:3px;}
+  .week-dot{width:7px;height:7px;border-radius:50%;background:var(--border);transition:background .2s;}
+  .week-dot.done{background:var(--green);}
+  .week-chevron{color:var(--muted);font-size:12px;transition:transform .25s;}
+  .week-card.open .week-chevron{transform:rotate(180deg);}
+  .week-days{display:none;border-top:1px solid var(--border);}
+  .week-card.open .week-days{display:block;}
+  .day-row{display:flex;border-bottom:1px solid var(--border);}
+  .day-row:last-child{border-bottom:none;}
+  .day-row.day-rest{opacity:.55;}
+  .day-check-col{display:flex;align-items:flex-start;justify-content:center;padding:14px 10px 14px 14px;flex-shrink:0;}
+  .day-checkbox{width:24px;height:24px;border:2px solid var(--border);border-radius:6px;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all .15s;margin-top:1px;}
+  .day-checkbox:active{transform:scale(.88);}
+  .day-checkbox.checked{background:var(--green);border-color:var(--green);}
+  .day-checkbox.checked::after{content:'✓';color:#fff;font-size:14px;font-weight:700;}
+  .day-content{flex:1;padding:12px 14px 12px 0;min-width:0;}
+  .day-label{display:flex;align-items:center;gap:5px;margin-bottom:4px;flex-wrap:wrap;}
+  .day-name{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);}
+  .day-type{font-size:9px;font-weight:500;letter-spacing:.07em;text-transform:uppercase;padding:2px 6px;border-radius:999px;}
+  .tag-run{background:rgba(249,115,22,.15);color:var(--accent);}
+  .tag-strength{background:rgba(59,130,246,.15);color:var(--accent2);}
+  .tag-cardio{background:rgba(168,85,247,.15);color:#a855f7;}
+  .tag-rest{background:rgba(107,114,128,.12);color:var(--muted);}
+  .tag-combo{background:rgba(34,197,94,.12);color:var(--green);}
+  .tag-long{background:rgba(234,179,8,.15);color:#eab308;}
+  .day-title{font-weight:500;font-size:13px;margin-bottom:4px;line-height:1.3;}
+  .day-detail{font-size:11px;color:#9ca3af;line-height:1.6;}
+  .day-detail ul{list-style:none;padding:0;margin-top:2px;}
+  .day-detail ul li{padding:1px 0 1px 13px;position:relative;}
+  .day-detail ul li::before{content:'—';position:absolute;left:0;color:var(--border);}
+  .day-detail strong{color:#d1d5db;font-weight:500;}
+  .day-duration{font-size:10px;color:var(--muted);margin-top:4px;font-family:'Barlow Condensed',sans-serif;}
+  .toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%) translateY(20px);background:var(--green);color:#fff;font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:13px;letter-spacing:.05em;padding:9px 18px;border-radius:8px;opacity:0;transition:all .3s ease;z-index:999;white-space:nowrap;pointer-events:none;}
+  .toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+  .footer-note{text-align:center;font-family:'Barlow Condensed',sans-serif;font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:var(--muted);margin-top:30px;}
+</style>
+</head>
+<body>
+<header>
+  <div class="header-inner">
+    <div class="header-top">
+      <div>
+        <div class="plan-title">Half <span>Marathon</span><br>Training Plan</div>
+        <div class="subtitle">Mon–Thu · 4 Days/Week · 15 Weeks · Race Aug 9</div>
+      </div>
+      <div class="progress-block">
+        <div class="progress-label">Progress</div>
+        <div class="progress-bar-wrap"><div class="progress-bar-fill" id="globalBar"></div></div>
+        <div class="progress-pct" id="globalPct">0%</div>
+        <div class="progress-sub" id="progressSub">0/52 sessions</div>
+      </div>
+    </div>
+    <div class="save-row">
+      <span class="save-indicator"><span class="save-dot"></span><span id="saveText">Auto-saved</span></span>
+      <button class="reset-btn" id="btnReset">↺ Reset</button>
+    </div>
+  </div>
+</header>
+<main>
+  <div class="legend">
+    <div class="legend-item"><div class="legend-dot" style="background:#f97316"></div>Run</div>
+    <div class="legend-item"><div class="legend-dot" style="background:#3b82f6"></div>Strength</div>
+    <div class="legend-item"><div class="legend-dot" style="background:#a855f7"></div>Cardio</div>
+    <div class="legend-item"><div class="legend-dot" style="background:#22c55e"></div>Combo</div>
+    <div class="legend-item"><div class="legend-dot" style="background:#eab308"></div>Long Run</div>
+    <div class="legend-item"><div class="legend-dot" style="background:#4b5563"></div>Rest</div>
+  </div>
+  <div id="plan"></div>
+  <div class="footer-note">You've got this 💪</div>
+</main>
+<div class="toast" id="toast"></div>
+<script>
+var phases=[{label:"Phase 1",title:"Foundation — Build the Habit",weeks:[1,2,3]},{label:"Phase 2",title:"Development — Extend & Strengthen",weeks:[4,5,6,7]},{label:"Phase 3",title:"Build — Push Your Limits",weeks:[8,9,10,11]},{label:"Phase 4",title:"Peak & Taper",weeks:[12,13,14,15]}];
+var weeks=[
+{id:1,name:"Week 1 — First Steps",meta:"Walk/Run · Full Body Strength · Get moving",days:[
+{day:"Monday",type:"combo",tag:"Run + Strength",title:"Walk/Run + Upper Body",detail:["Treadmill: 5 min warm-up, then 10 rounds of 1 min jog / 2 min walk","Upper Body Strength:","Lat pulldown 3×12","Seated cable row 3×12","Dumbbell shoulder press 3×10","Bicep curl 3×12","Tricep pushdown 3×12","Plank hold 3×20 sec"],duration:"~60 min"},
+{day:"Tuesday",type:"cardio",tag:"Cardio",title:"Easy Bike or Row",detail:["Stationary bike or rowing machine: 35 min steady","Keep effort light — you should be able to chat","Focus on breathing and rhythm"],duration:"~40 min"},
+{day:"Wednesday",type:"combo",tag:"Run + Strength",title:"Walk/Run + Lower Body & Core",detail:["Treadmill: 5 min warm-up, 10 rounds 1 min jog / 2 min walk","Lower Body & Core:","Goblet squat 3×12 (light dumbbell)","Leg press machine 3×12","Romanian deadlift 3×10 (light)","Hip bridges 3×15","Dead bug 3×10 each side","Plank 3×25 sec"],duration:"~60 min"},
+{day:"Thursday",type:"long",tag:"Long Run",title:"Long Walk/Run — 35-40 min",detail:["35–40 min continuous movement","Alternate 2 min jog / 2 min walk throughout","Don't worry about speed — time on feet is the goal"],duration:"~40 min"}
+]},
+{id:2,name:"Week 2 — Finding Rhythm",meta:"Walk/Run · Full Body Strength · Build consistency",days:[
+{day:"Monday",type:"combo",tag:"Run + Strength",title:"Walk/Run + Upper Body",detail:["Treadmill: 10 rounds of 90 sec jog / 90 sec walk","Upper Body:","Lat pulldown 3×12 (+1–2kg from W1)","Seated cable row 3×12","Dumbbell shoulder press 3×10","Bicep curl 3×12","Tricep pushdown 3×12","Push-up 3×8","Plank 3×25 sec"],duration:"~60 min"},
+{day:"Tuesday",type:"cardio",tag:"Cardio",title:"Easy Row or Bike",detail:["Rowing machine: 40 min at easy effort","Focus on form: drive legs first, then pull arms","Or bike if rowing feels uncomfortable"],duration:"~40 min"},
+{day:"Wednesday",type:"combo",tag:"Run + Strength",title:"Walk/Run + Lower Body & Core",detail:["Treadmill: 10 rounds 90 sec jog / 90 sec walk","Lower Body & Core:","Goblet squat 3×12 (slightly heavier)","Leg press 3×12","Romanian deadlift 3×10","Reverse lunge 3×10 each leg","Hip bridges 3×15","Dead bug 3×12 each side","Side plank 3×20 sec each"],duration:"~60 min"},
+{day:"Thursday",type:"long",tag:"Long Run",title:"Long Walk/Run — 40-45 min",detail:["40–45 min total movement","2 min jog / 1.5 min walk intervals","Aim to feel tired but not wrecked at the end"],duration:"~45 min"}
+]},
+{id:3,name:"Week 3 — Locking In",meta:"Walk/Run · Full Body Strength · Intervals introduced",days:[
+{day:"Monday",type:"combo",tag:"Run + Strength",title:"Walk/Run + Upper Body",detail:["Treadmill: 2 min jog / 1 min walk × 10 rounds (30 min)","Upper Body:","Lat pulldown 3×10 (heavier)","Seated cable row 3×10","Dumbbell shoulder press 3×10","Dumbbell chest press 3×10","Bicep curl 3×12","Skull crushers 3×10","Plank 3×30 sec"],duration:"~60 min"},
+{day:"Tuesday",type:"cardio",tag:"Cardio",title:"Moderate Bike Intervals",detail:["Bike: 5 min warm-up","10 rounds: 1 min harder / 2 min easy","5 min cool-down — total ~40 min"],duration:"~40 min"},
+{day:"Wednesday",type:"combo",tag:"Run + Strength",title:"Walk/Run + Lower Body & Core",detail:["Treadmill: 2 min jog / 1 min walk × 10 rounds","Lower Body & Core:","Barbell back squat 3×10 (light, learn form)","Leg press 3×12 (heavier)","Romanian deadlift 3×10","Walking lunges 3×12 steps","Hip bridges with dumbbell 3×15","Plank 3×35 sec","Bicycle crunches 3×15"],duration:"~65 min"},
+{day:"Thursday",type:"long",tag:"Long Run",title:"Long Run — 45 min",detail:["45 min: try to run 3 min / walk 1 min throughout","You should feel challenged but in control","This is your longest run yet — celebrate it!"],duration:"~45 min"}
+]},
+{id:4,name:"Week 4 — Stepping Up",meta:"Longer runs · Heavier lifting · Endurance grows",days:[
+{day:"Monday",type:"combo",tag:"Run + Strength",title:"Run + Upper Body",detail:["Treadmill: 30 min run (3 min jog / 1 min walk — or continuous!)","Upper Body:","Lat pulldown 4×10","Cable row 4×10","Dumbbell shoulder press 3×10","Chest press 3×10","Lateral raise 3×12","Face pulls 3×15","Plank 3×35 sec"],duration:"~65 min"},
+{day:"Tuesday",type:"cardio",tag:"Cardio",title:"Row Machine — Steady 40 min",detail:["35–40 min steady rowing at moderate effort","Track your 500m split — keep it consistent","Active recovery day — don't push hard"],duration:"~40 min"},
+{day:"Wednesday",type:"combo",tag:"Run + Strength",title:"Run + Lower Body & Core",detail:["Treadmill: 30 min — jog with minimal walk breaks","Lower Body & Core:","Back squat 4×10","Leg press 4×10 (heavier)","Romanian deadlift 4×10","Bulgarian split squat 3×8 each leg","Hip bridges with weight 3×15","Ab wheel rollout 3×8","Side plank 3×30 sec each"],duration:"~70 min"},
+{day:"Thursday",type:"long",tag:"Long Run",title:"Long Run — 50 min",detail:["50 min continuous — mostly jogging","Walk only when you really need to","Aim for 4–5km covered"],duration:"~50 min"}
+]},
+{id:5,name:"Week 5 — Running More",meta:"Continuous running goal · Strength progression",days:[
+{day:"Monday",type:"combo",tag:"Run + Strength",title:"Run + Upper Body Push",detail:["Treadmill: 30–35 min — aim for 20 min continuous","Upper Body Push:","Barbell bench press 4×8","Overhead dumbbell press 3×10","Cable fly 3×12","Lateral raise 3×12","Tricep dips 3×10","Pushups 3×10","Plank 3×40 sec"],duration:"~65 min"},
+{day:"Tuesday",type:"cardio",tag:"Cardio",title:"Bike Hill Intervals",detail:["5 min warm-up","8 rounds: 2 min hard (increase resistance) / 2 min easy","5 min cool-down"],duration:"~40 min"},
+{day:"Wednesday",type:"combo",tag:"Run + Strength",title:"Run + Upper Body Pull + Core",detail:["Treadmill: 30 min — push continuous running","Upper Body Pull:","Lat pulldown 4×10","Seated row 4×10","Single-arm dumbbell row 3×10 each","Face pulls 3×15","Bicep curl 3×12","Hammer curl 3×12","Core: Dead bug 3×12, Bicycle crunch 3×20, Plank 3×40 sec"],duration:"~70 min"},
+{day:"Thursday",type:"long",tag:"Long Run",title:"Long Run — 55 min / ~6km",detail:["55 min — aim to cover ~6km at easy pace","Walk breaks only if truly needed","Breathing pattern: in 3 steps / out 3 steps"],duration:"~55 min"}
+]},
+{id:6,name:"Week 6 — Building Strength",meta:"Bigger lifts · Longer runs · Halfway there",days:[
+{day:"Monday",type:"combo",tag:"Run + Strength",title:"Run + Upper Body",detail:["Treadmill: 35 min — try 25 min continuous","Upper Body:","Barbell bench press 4×8 (increase weight)","Lat pulldown 4×8 (heavier)","Dumbbell shoulder press 4×8","Cable row 4×10","Tricep pushdown 3×12","Bicep curl 3×12","Plank 3×45 sec"],duration:"~70 min"},
+{day:"Tuesday",type:"cardio",tag:"Cardio",title:"Easy Row — 40 min",detail:["40 min steady-state rowing","Active recovery — moderate effort only","Focus on smooth technique"],duration:"~40 min"},
+{day:"Wednesday",type:"combo",tag:"Run + Strength",title:"Run + Lower Body",detail:["Treadmill: 35 min","Lower Body:","Back squat 4×8 (heavier)","Leg press 4×10","Romanian deadlift 4×8","Walking lunges 3×14 steps","Leg curl machine 3×12","Calf raises 4×15","Core: Ab wheel 3×10, Plank 3×45 sec"],duration:"~75 min"},
+{day:"Thursday",type:"long",tag:"Long Run",title:"Long Run — 60 min / ~7km",detail:["Your first 60-min run!","Aim for 6–7km at comfortable pace","Keep the effort conversational"],duration:"~60 min"}
+]},
+{id:7,name:"Week 7 — Deload & Recover",meta:"Lighter week · Recovery · Let the body adapt",days:[
+{day:"Monday",type:"run",tag:"Run",title:"Easy Run — 25 min",detail:["Treadmill: 25 min very easy jog","No strength today — give muscles a break","Focus on form: tall posture, relaxed shoulders"],duration:"~30 min"},
+{day:"Tuesday",type:"cardio",tag:"Cardio",title:"Light Bike — 30 min",detail:["Easy spin — very low effort","Legs just moving, nothing more","Optional: foam rolling after"],duration:"~30 min"},
+{day:"Wednesday",type:"strength",tag:"Strength",title:"Full Body Light Strength",detail:["Reduced volume — 2 sets each, lighter weight:","Squat 2×12, Deadlift 2×10, Bench press 2×12","Lat pulldown 2×12, Row 2×12, Shoulder press 2×12","Core: Plank 2×40 sec, Dead bug 2×10"],duration:"~45 min"},
+{day:"Thursday",type:"long",tag:"Long Run",title:"Long Run — 50 min (Easy)",detail:["50 min easy run — slower than usual","Deload week: refresh, don't push","Body is rebuilding stronger"],duration:"~50 min"}
+]},
+{id:8,name:"Week 8 — Push Phase Begins",meta:"Higher intensity · 10km in sight · Gains accelerating",days:[
+{day:"Monday",type:"combo",tag:"Run + Strength",title:"Tempo Run + Upper Body",detail:["Treadmill: 35 min — include 10 min at comfortably hard pace in middle","Upper Body:","Barbell bench press 4×6 (heavy)","Lat pulldown 4×6 (heavy)","Overhead press 4×8","Cable row 4×8","Dumbbell curl 3×10","Skull crushers 3×10","Plank 3×50 sec"],duration:"~70 min"},
+{day:"Tuesday",type:"cardio",tag:"Cardio",title:"Row Intervals — 40 min",detail:["Row: 10 min warm-up","6 rounds: 3 min hard / 2 min easy","5 min cool-down"],duration:"~40 min"},
+{day:"Wednesday",type:"combo",tag:"Run + Strength",title:"Run + Lower Body Heavy",detail:["Treadmill: 35 min","Lower Body Heavy:","Back squat 4×6 (progressive overload)","Romanian deadlift 4×6","Leg press 4×10","Bulgarian split squat 3×8 each","Leg curl 3×12","Calf raises 4×15","Core: Plank 3×50 sec, Ab wheel 3×10"],duration:"~75 min"},
+{day:"Thursday",type:"long",tag:"Long Run",title:"Long Run — 65 min / 8km",detail:["65 min — aim for 8km","Run most of this without walking","Bring water — hydration matters now"],duration:"~65 min"}
+]},
+{id:9,name:"Week 9 — Into Double Digits",meta:"10km target · Progressive overload continues",days:[
+{day:"Monday",type:"combo",tag:"Run + Strength",title:"Interval Run + Upper Body",detail:["Treadmill: 5 min warm-up, 8×2 min fast / 90 sec easy, 5 min cool-down","Upper Body:","Bench press 4×6","Weighted/assisted pull-up 4×6","Shoulder press 4×8","Cable row 4×8","Lateral raise 3×12","Bicep curl 3×10","Tricep dip 3×10","Plank 3×55 sec"],duration:"~75 min"},
+{day:"Tuesday",type:"cardio",tag:"Cardio",title:"Steady Bike — 45 min",detail:["Moderate effort bike for 45 min","HR at ~65% max — conversational pace","Active recovery to flush legs from Monday"],duration:"~45 min"},
+{day:"Wednesday",type:"combo",tag:"Run + Strength",title:"Easy Run + Lower Body",detail:["Treadmill: 30 min easy (recovery pace)","Lower Body:","Back squat 4×6","Deadlift 4×5 (heavy)","Leg press 4×10","Reverse lunge 3×10 each","Hip thrust with barbell 3×12","Calf raises 4×15","Core: Dead bug 3×12, Side plank 3×35 sec, Ab wheel 3×10"],duration:"~75 min"},
+{day:"Thursday",type:"long",tag:"Long Run",title:"Long Run — 70 min / 9-10km",detail:["70 min — aim for your first 10km!","Pace: slow and steady — don't burn out early","Milestone: 10km = half your race distance 🎉"],duration:"~70 min"}
+]},
+{id:10,name:"Week 10 — Strength Peak",meta:"Heaviest lifting week · Run confidence growing",days:[
+{day:"Monday",type:"combo",tag:"Run + Strength",title:"Run + Upper Body Max Strength",detail:["Treadmill: 30 min run","Upper Body (5×5 protocol):","Barbell bench press 5×5","Weighted chin-up or lat pulldown 5×5","Overhead barbell press 4×6","Cable row 4×6","Isolation: Curl 3×10, Tricep 3×10","Plank 3×60 sec"],duration:"~75 min"},
+{day:"Tuesday",type:"cardio",tag:"Cardio",title:"Row Machine — 40 min Steady",detail:["40 min moderate rowing","Focus on technique refinement","Consistent split pace throughout"],duration:"~40 min"},
+{day:"Wednesday",type:"combo",tag:"Run + Strength",title:"Run + Lower Body Max Strength",detail:["Treadmill: 30 min run","Lower Body (5×5 protocol):","Back squat 5×5","Conventional deadlift 4×5","Leg press 4×8 (heavy)","Walking lunge 3×12 steps","Hip thrust 4×10","Calf raises 4×15","Plank 3×60 sec, Bicycle crunch 3×20"],duration:"~80 min"},
+{day:"Thursday",type:"long",tag:"Long Run",title:"Long Run — 80 min / 11km",detail:["80 min — push for 11km","You're running real distances — respect that","Post-run: stretch calves, quads, hip flexors"],duration:"~80 min"}
+]},
+{id:11,name:"Week 11 — Final Big Push",meta:"Biggest week · 13-14km · Trust your training",days:[
+{day:"Monday",type:"combo",tag:"Run + Strength",title:"Tempo Run + Upper Body",detail:["Treadmill: 40 min — 15 min tempo effort in middle","Upper Body (maintain):","Bench press 4×6, Pull-up/lat pulldown 4×6","Shoulder press 3×8, Cable row 3×8","Curl 3×10, Tricep 3×10","Plank 3×60 sec"],duration:"~75 min"},
+{day:"Tuesday",type:"cardio",tag:"Cardio",title:"Easy Bike — 40 min",detail:["Very easy bike — recovery focus","Legs will be tired — keep effort minimal","Foam roll after if possible"],duration:"~40 min"},
+{day:"Wednesday",type:"combo",tag:"Run + Strength",title:"Run + Lower Body Maintain",detail:["Treadmill: 35 min easy","Lower Body (same weight, no increase):","Squat 3×8, Deadlift 3×5","Leg press 3×10, Hip thrust 3×12","Calf raises 3×15","Core: Plank 3×60 sec, Dead bug 3×12"],duration:"~75 min"},
+{day:"Thursday",type:"long",tag:"Long Run",title:"PEAK RUN — 90 min / 13-14km",detail:["Your peak long run — 90 min","Aim for 13–14km — longest before race day","Pace: very easy. Bring water, eat a banana beforehand."],duration:"~90 min"}
+]},
+{id:12,name:"Week 12 — Taper Begins",meta:"Volume drops 30% · Body absorbs all gains",days:[
+{day:"Monday",type:"combo",tag:"Run + Strength",title:"Easy Run + Upper Body",detail:["Treadmill: 30 min easy run","Upper Body (taper — same weight, less volume):","Bench press 3×5, Lat pulldown 3×5","Shoulder press 3×6, Row 3×6","Curl 2×10, Tricep 2×10","Plank 3×45 sec"],duration:"~60 min"},
+{day:"Tuesday",type:"cardio",tag:"Cardio",title:"Easy Bike — 30 min",detail:["30 min easy spin","Shake out the legs, don't push","Rest is training now"],duration:"~30 min"},
+{day:"Wednesday",type:"combo",tag:"Run + Strength",title:"Easy Run + Lower Body",detail:["Treadmill: 30 min easy","Lower Body (taper):","Squat 3×5, Deadlift 2×5","Leg press 3×8, Hip thrust 3×10","Calf raises 3×12, Plank 2×45 sec"],duration:"~60 min"},
+{day:"Thursday",type:"long",tag:"Long Run",title:"Long Run — 70 min",detail:["70 min easy — no pressure, no pushing","Think of this as a confidence run","You've done the hard work."],duration:"~70 min"}
+]},
+{id:13,name:"Week 13 — Deep Taper",meta:"Volume drops 50% · Light lifting · Save the legs",days:[
+{day:"Monday",type:"run",tag:"Run",title:"Easy Run — 25 min",detail:["Very easy treadmill jog, 25 min","Conversational pace only","Feel good, stay loose"],duration:"~25 min"},
+{day:"Tuesday",type:"strength",tag:"Strength",title:"Full Body Light Strength",detail:["Reduced volume (80% of normal weight):","Bench press 2×5, Lat pulldown 2×5","Squat 2×5, Hip thrust 2×8","Shoulder press 2×6","Core: Plank 2×40 sec only"],duration:"~35 min"},
+{day:"Wednesday",type:"run",tag:"Run",title:"Pace Practice Run — 20 min",detail:["20 min run — include 5 min at goal race pace","Feel out the pace you'll run Aug 9","Relaxed and confident"],duration:"~20 min"},
+{day:"Thursday",type:"long",tag:"Long Run",title:"Long Run — 55 min",detail:["55 min easy — last proper long run","Slow, controlled, confident","Trust the taper. You're ready."],duration:"~55 min"}
+]},
+{id:14,name:"Week 14 — Final Prep",meta:"Race week minus 1 · Short runs only · Rest is training",days:[
+{day:"Monday",type:"run",tag:"Run",title:"Easy Shake-Out Run — 20 min",detail:["20 min treadmill, very easy","No strength training this week","Legs should feel springy and fresh"],duration:"~20 min"},
+{day:"Tuesday",type:"rest",tag:"Rest",title:"Full Rest Day",detail:["No gym today","Go for a 20 min walk if restless","Sleep 8+ hours, eat well, hydrate"],duration:"Rest"},
+{day:"Wednesday",type:"run",tag:"Run",title:"Final Shake-Out — 15 min",detail:["15 min easy jog — keep legs moving","Include 3×20 sec strides at end","That's it. You're done training."],duration:"~15 min"},
+{day:"Thursday",type:"rest",tag:"Rest",title:"Full Rest — Race Week Prep",detail:["Rest completely","Lay out your race gear tonight","Eat carb-heavy meals: pasta, rice, bread","Hydrate all day — light yellow urine"],duration:"Rest"}
+]},
+{id:15,name:"Week 15 — Race Week 🏁",meta:"August 9 — Half Marathon Race Day!",days:[
+{day:"Monday",type:"rest",tag:"Rest",title:"Rest — Race in 5 Days",detail:["Full rest","Carb-load begins: pasta, rice, oats","Stay off your feet as much as possible"],duration:"Rest"},
+{day:"Tuesday",type:"run",tag:"Run",title:"Final Easy Run — 10 min",detail:["Just 10 min very easy jog","Check your shoes are comfortable","Last run before race day!"],duration:"~10 min"},
+{day:"Wednesday",type:"rest",tag:"Rest",title:"Full Rest",detail:["Rest completely","Keep eating well and hydrating","Visualise race day — start slow, finish strong"],duration:"Rest"},
+{day:"Thursday",type:"rest",tag:"Rest",title:"Rest — Race Tomorrow! 🎉",detail:["Full rest","Pack race bag: bib, shoes, socks, water, snack","Sleep early. Eat familiar food — nothing new."],duration:"Rest"}
+]}
+];
+var tagMap={"Run + Strength":"tag-combo","Run":"tag-run","Cardio":"tag-cardio","Strength":"tag-strength","Long Run":"tag-long","Rest":"tag-rest"};
+var STORAGE_KEY='marathonPlanV1';
+var checked={};
+
+// Load from localStorage
+try{
+  var saved=localStorage.getItem(STORAGE_KEY);
+  if(saved)checked=JSON.parse(saved)||{};
+}catch(e){checked={};}
+
+function save(){
+  try{localStorage.setItem(STORAGE_KEY,JSON.stringify(checked));}catch(e){}
+}
+
+function gk(wId,dIdx){return"w"+wId+"_d"+dIdx;}
+
+function showToast(msg){
+  var t=document.getElementById('toast');
+  t.textContent=msg;t.classList.add('show');
+  setTimeout(function(){t.classList.remove('show');},2000);
+}
+
+function flashSaved(){
+  var el=document.getElementById('saveText');
+  el.textContent='Saved ✓';
+  setTimeout(function(){el.textContent='Auto-saved';},1500);
+}
+
+function updateProgress(){
+  var total=0,done=0;
+  weeks.forEach(function(w){w.days.forEach(function(d,i){if(d.type!=='rest'){total++;if(checked[gk(w.id,i)])done++;}});});
+  var pct=total?Math.round(done/total*100):0;
+  document.getElementById('globalBar').style.width=pct+'%';
+  document.getElementById('globalPct').textContent=pct+'%';
+  document.getElementById('progressSub').textContent=done+'/'+total+' sessions';
+}
+
+function updateWeekCard(wId){
+  var week=null;
+  for(var i=0;i<weeks.length;i++){if(weeks[i].id===wId){week=weeks[i];break;}}
+  if(!week)return;
+  var card=document.getElementById('week-'+wId);
+  if(!card)return;
+  var dots=card.querySelectorAll('.week-dot');
+  var done=0,total=0;
+  week.days.forEach(function(d,i){
+    if(d.type!=='rest'){
+      total++;
+      var isDone=!!checked[gk(wId,i)];
+      if(isDone)done++;
+      if(dots[i])dots[i].classList.toggle('done',isDone);
+    }
+  });
+  card.classList.toggle('completed',total>0&&done===total);
+}
+
+document.getElementById('btnReset').addEventListener('click',function(){
+  if(!confirm('Reset all progress? This cannot be undone.'))return;
+  checked={};
+  save();
+  document.querySelectorAll('.day-checkbox').forEach(function(cb){cb.classList.remove('checked');});
+  weeks.forEach(function(w){updateWeekCard(w.id);});
+  updateProgress();
+  showToast('↺ Progress reset');
+});
+
+function buildPlan(){
+  var container=document.getElementById('plan');
+  weeks.forEach(function(week){
+    var phase=null;
+    for(var p=0;p<phases.length;p++){if(phases[p].weeks[0]===week.id){phase=phases[p];break;}}
+    if(phase){
+      var ph=document.createElement('div');
+      ph.className='phase-header';
+      ph.innerHTML='<div class="phase-label">'+phase.label+'</div><div class="phase-title">'+phase.title+'</div><div class="phase-line"></div>';
+      container.appendChild(ph);
+    }
+    var card=document.createElement('div');
+    card.className='week-card';
+    card.id='week-'+week.id;
+    var dotsHTML=week.days.map(function(){return'<div class="week-dot"></div>';}).join('');
+    card.innerHTML='<div class="week-header"><div class="week-num">W'+week.id+'</div><div class="week-info"><div class="week-name">'+week.name+'</div><div class="week-meta">'+week.meta+'</div></div><div class="week-right"><div class="week-dots">'+dotsHTML+'</div><div class="week-chevron">▾</div></div></div><div class="week-days"></div>';
+    var daysEl=card.querySelector('.week-days');
+    week.days.forEach(function(day,i){
+      var row=document.createElement('div');
+      row.className='day-row'+(day.type==='rest'?' day-rest':'');
+      var canCheck=day.type!=='rest';
+      var isChk=!!checked[gk(week.id,i)];
+      var detailHTML=day.detail.map(function(line){
+        if(line.endsWith&&line.endsWith(':'))return'<strong>'+line+'</strong>';
+        return'<li>'+line+'</li>';
+      }).join('');
+      row.innerHTML='<div class="day-check-col"><div class="day-checkbox'+(isChk?' checked':'')+'" data-week="'+week.id+'" data-day="'+i+'"'+(canCheck?'':' style="opacity:.15;pointer-events:none"')+'></div></div><div class="day-content"><div class="day-label"><span class="day-name">'+day.day+'</span><span class="day-type '+(tagMap[day.tag]||'')+'">'+day.tag+'</span></div><div class="day-title">'+day.title+'</div><div class="day-detail"><ul>'+detailHTML+'</ul></div><div class="day-duration">⏱ '+day.duration+'</div></div>';
+      daysEl.appendChild(row);
+    });
+    card.querySelector('.week-header').addEventListener('click',function(){card.classList.toggle('open');});
+    card.querySelectorAll('.day-checkbox').forEach(function(cb){
+      cb.addEventListener('click',function(e){
+        e.stopPropagation();
+        var wId=parseInt(cb.getAttribute('data-week'));
+        var dIdx=parseInt(cb.getAttribute('data-day'));
+        var key=gk(wId,dIdx);
+        if(checked[key])delete checked[key];
+        else checked[key]=true;
+        cb.classList.toggle('checked',!!checked[key]);
+        save();
+        flashSaved();
+        updateWeekCard(wId);
+        updateProgress();
+      });
+    });
+    updateWeekCard(week.id);
+    container.appendChild(card);
+  });
+  var first=null;
+  for(var i=0;i<weeks.length;i++){
+    var w=weeks[i];
+    var hasUncompleted=false;
+    for(var j=0;j<w.days.length;j++){if(w.days[j].type!=='rest'&&!checked[gk(w.id,j)]){hasUncompleted=true;break;}}
+    if(hasUncompleted){first=w;break;}
+  }
+  if(first){var fc=document.getElementById('week-'+first.id);if(fc)fc.classList.add('open');}
+  updateProgress();
+}
+
+buildPlan();
+</script>
+</body>
+</html>
